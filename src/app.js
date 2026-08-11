@@ -17,7 +17,7 @@ app.use(
     origin: [
       "http://localhost:5173",
 
-      "https://job-protal-frontend-theta.vercel.app/"    ],
+      "https://job-portal-frontend-my-jobs-cm5mzb2rf-sohamcodes9161s-projects.vercel.app/"    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
