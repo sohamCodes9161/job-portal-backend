@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import Job from "../models/job.model.js";
 import Application from "../models/application.model.js";
+import Conversation from "../models/conversation.model.js";
 
 import ErrorHandler from "../utils/errorHandler.js";
 import asyncHandler from "./asyncHandler.js";
@@ -122,6 +123,35 @@ export const checkApplicationOwnership = asyncHandler(
     // Attach application
     req.application = application;
 
+    next();
+  }
+);
+
+/**
+ * 💬 CHECK CONVERSATION PARTICIPANT
+ * Messaging is now scoped to a Conversation (one per job+candidate pair),
+ * not an Application. Both the candidate and the recruiter who owns the
+ * job need access to read/send in that thread.
+ */
+export const checkConversationParticipant = asyncHandler(
+  async (req, res, next) => {
+    const conversation = await Conversation.findById(req.params.id).populate(
+      "job",
+      "title createdBy"
+    );
+
+    if (!conversation) {
+      throw new ErrorHandler("Conversation not found", 404);
+    }
+
+    const isCandidate = conversation.candidate.equals(req.user._id);
+    const isRecruiter = conversation.recruiter.equals(req.user._id);
+
+    if (!isCandidate && !isRecruiter) {
+      throw new ErrorHandler("Access denied", 403);
+    }
+
+    req.conversation = conversation;
     next();
   }
 );

@@ -52,7 +52,7 @@ export const getAllJobs = asyncHandler(async (req, res, next) => {
   // 🔥 Step 4: Fetch jobs
   const jobs = await apiFeatures.query.populate(
     "createdBy",
-    "name email"
+    "name avatar headline email"
   );
 
   // 🔥 Step 5: Calculate total pages
@@ -70,7 +70,7 @@ export const getJobById = asyncHandler(async (req, res, next) => {
 
   const job = await Job.findById(req.params.id).populate(
     "createdBy",
-    "name email"
+    "name avatar headline email"
   );
 
   if (!job) {

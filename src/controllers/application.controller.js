@@ -2,6 +2,7 @@ import Application from "../models/application.model.js";
 import Job from "../models/job.model.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import ErrorHandler from "../utils/errorHandler.js";
+import { createNotification } from "../utils/notify.js";
 
 export const applyToJob = asyncHandler(async (req, res, next) => {
   const jobId = req.params.id;
@@ -27,6 +28,14 @@ export const applyToJob = asyncHandler(async (req, res, next) => {
     job: jobId,
   });
 
+  await createNotification({
+    user: job.createdBy,
+    type: "new_applicant",
+    message: `New applicant for "${job.title}"`,
+    link: `/admin/jobs/${job._id}/applicants`,
+    relatedApplication: application._id,
+  });
+
   res.status(201).json({
     success: true,
     message: "Applied successfully",
@@ -37,7 +46,10 @@ export const applyToJob = asyncHandler(async (req, res, next) => {
 export const getMyApplications = asyncHandler(async (req, res, next) => {
 
   const applications = await Application.find({ user: req.user._id })
-    .populate("job");
+    .populate({
+      path: "job",
+      populate: { path: "createdBy", select: "name avatar headline" },
+    });
 
   res.status(200).json({
     success: true,
@@ -51,7 +63,7 @@ export const getJobApplicants = asyncHandler(async (req, res, next) => {
   const jobId = req.params.id;
 
   const applications = await Application.find({ job: jobId })
-    .populate("user", "name email resume") // ✅ FIXED
+    .populate("user", "name email resume avatar headline") // ✅ FIXED
 
   res.status(200).json({
     success: true,
@@ -80,6 +92,18 @@ export const updateApplicationStatus = asyncHandler(async (req, res, next) => {
 
   application.status = status;
   await application.save();
+
+  const job = await Job.findById(application.job).select("title");
+
+  await createNotification({
+    user: application.user,
+    type: "application_status",
+    message: job
+      ? `Your application for "${job.title}" was ${status}`
+      : `Your application status changed to ${status}`,
+    link: `/applications`,
+    relatedApplication: application._id,
+  });
 
   res.status(200).json({
     success: true,

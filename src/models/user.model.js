@@ -33,6 +33,40 @@ const userSchema = new mongoose.Schema(
       url: String,
       public_id: String,
     },
+
+    avatar: {
+      url: String,
+      public_id: String,
+    },
+
+    headline: {
+      type: String,
+      trim: true,
+      maxlength: 120,
+    },
+
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: 600,
+    },
+
+    location: {
+      type: String,
+      trim: true,
+    },
+
+    skills: {
+      type: [String],
+      default: [],
+    },
+
+    links: {
+      linkedin: { type: String, trim: true },
+      github: { type: String, trim: true },
+      portfolio: { type: String, trim: true },
+    },
+
   refreshToken: {
       type: String,
     }
