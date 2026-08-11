@@ -14,7 +14,7 @@ const app = express();
 // 1. CORS must be first to handle Preflight (OPTIONS) requests
 app.use(
   cors({
-     origin: ["http://localhost:5173", "https://job-portal-frontend-one-zeta.vercel.app"],
+     origin: ["http://localhost:5173", "https://job-portal-frontend-mjw9.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
